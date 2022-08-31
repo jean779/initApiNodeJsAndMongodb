@@ -4,6 +4,10 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs"
 require('dotenv').config()
 
+type JwtPaylooad ={
+    id: number
+}
+
 class UserController{
     
     async find(req: Request, res: Response){
@@ -53,7 +57,7 @@ class UserController{
         if(!user){
             return res.status(400).json({
                 error : "Ooops",
-                message: "Invalid email"
+                message: "Invalid email or passwords"
             })
         } 
 
@@ -68,11 +72,40 @@ class UserController{
 
         console.log(process.env.JWT_PASS);
 
-        const token = jwt.sign( {id: user.id},  process.env.JWT_PASS ?? 'aaajjjj22', { 
+        const token = jwt.sign( {id: user.id},  process.env.JWT_PASS ?? 'a71e8c308d026413bc060cddab7a7dc9', { 
             expiresIn: '1h'
         })
 
        console.log(token);
+
+       
+       return res.json({
+            userId: user.id,
+            name: user.name,
+            email: user.email,
+            token: token,
+            message: "Successfully logged in",
+       })
+    }
+
+    async getProfile(req: Request, res: Response){
+        const { authorization } = req.headers;
+
+        if(!authorization){
+            res.status(401).json({
+                error: "Unauthorized",
+                message: "you do not have authorization for this route"
+            })
+        }
+   
+        
+        const token = authorization.split(' ')[1] ;
+
+        console.log(token);
+
+        const { id } = jwt.verify(token, process.env.JWT_PASS ?? '') as JwtPaylooad;
+
+        console.log(id);
     }
 }
 
