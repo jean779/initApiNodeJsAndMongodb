@@ -40,7 +40,7 @@ class UserController{
                 password
             })
 
-            res.json(user);
+            return res.json(user);
 
         }catch(error){
             return res.status(500).send({
@@ -53,59 +53,48 @@ class UserController{
     async login(req: Request, res: Response){
         const {email, password} = req.body;
         const user = await User.findOne({email})
-                  
-        if(!user){
-            return res.status(400).json({
-                error : "Ooops",
-                message: "Invalid email or passwords"
+           
+        try{
+            if(!user){
+                return res.status(400).json({
+                    error : "Ooops",
+                    message: "Invalid email or passwords"
+                })
+            } 
+
+            const verifyPass = await bcrypt.compare(password, user.password);
+
+            if(!verifyPass){
+                return res.status(400).json({
+                    error : "Ooops",
+                    message: "Invalid email or passwords"
+                })
+            } 
+
+            console.log(process.env.JWT_PASS);
+
+            const token = jwt.sign( {id: user.id},  process.env.JWT_PASS ?? 'a71e8c308d026413bc060cddab7a7dc9', { 
+                expiresIn: '1h'
             })
-        } 
 
-        const verifyPass = await bcrypt.compare(password, user.password);
-
-        if(!verifyPass){
-            return res.status(400).json({
-                error : "Ooops",
-                message: "Invalid email or passwords"
+            return res.json({
+                    userId: user.id,
+                    name: user.name,
+                    email: user.email,
+                    token: token,
+                    message: "Successfully logged in",
             })
-        } 
-
-        console.log(process.env.JWT_PASS);
-
-        const token = jwt.sign( {id: user.id},  process.env.JWT_PASS ?? 'a71e8c308d026413bc060cddab7a7dc9', { 
-            expiresIn: '1h'
-        })
-
-       console.log(token);
-
-       
-       return res.json({
-            userId: user.id,
-            name: user.name,
-            email: user.email,
-            token: token,
-            message: "Successfully logged in",
-       })
+        }catch(error){
+            return res.status(500).json({
+                error: "Something wrong happened, try again",
+                message: error,
+            });
+        }
     }
 
     async getProfile(req: Request, res: Response){
-        const { authorization } = req.headers;
-
-        if(!authorization){
-            res.status(401).json({
-                error: "Unauthorized",
-                message: "you do not have authorization for this route"
-            })
-        }
-   
+        return res.json(req.user);
         
-        const token = authorization.split(' ')[1] ;
-
-        console.log(token);
-
-        const { id } = jwt.verify(token, process.env.JWT_PASS ?? '') as JwtPaylooad;
-
-        console.log(id);
     }
 }
 
