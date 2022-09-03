@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import User from "../database/schemas/User"
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs"
+import  UserService   from "../services/UserService"
+import { BadRequestError } from "../helpers/api-errors";
+
 require('dotenv').config()
 
 type JwtPaylooad ={
@@ -9,67 +12,50 @@ type JwtPaylooad ={
 }
 
 class UserController{
-    
+
     async find(req: Request, res: Response){
-        try{
-            const users = await User.find();
+            const users = await UserService.getAllUsers();
             return res.json(users);
-        }catch(error){
-            return res.status(500).json({
-                error: "Something wrong happened, try again",
-                message: error,
-            });
-        }
     }
 
     async create(req: Request, res: Response){
         const {name, email, password} = req.body;
-        try{
-            const userExists = await User.findOne({email})
+        
+        const userExists = await User.findOne({email})
             
-            if(userExists){
-                return res.status(400).json({
-                    error : "Ooops",
-                    message: "User already exists"
-                })
-            }
-                    
-            const user = await User.create({
-                name,
-                email,
-                password
-            })
-
-            return res.json(user);
-
-        }catch(error){
-            return res.status(500).send({
-                error: "Registrarion failed",
-                message: error
-            })
+        if(userExists){
+            throw new  BadRequestError ("User already exists");
         }
+
+        const user = await UserService.userCreate(name, email, password)
+
+        return res.json(user);
+
+        // }catch(error){
+        //     return res.status(500).send({
+        //         error: "Registrarion failed",
+        //         message: error
+        //     })
+        // }
     }
 
     async login(req: Request, res: Response){
         const {email, password} = req.body;
         const user = await User.findOne({email})
            
-        try{
-            if(!user){
-                return res.status(400).json({
-                    error : "Ooops",
-                    message: "Invalid email or passwords"
-                })
-            } 
+        // try{
+            if(!user)
+                throw new  BadRequestError ("Invalid email or passwords");
 
             const verifyPass = await bcrypt.compare(password, user.password);
 
-            if(!verifyPass){
-                return res.status(400).json({
-                    error : "Ooops",
-                    message: "Invalid email or passwords"
-                })
-            } 
+            if(!verifyPass)
+                throw new  BadRequestError ("Invalid email or passwords");
+                // return res.status(400).json({
+                //     error : "Ooops",
+                //     message: "Invalid email or passwords"
+                // })
+            
 
             console.log(process.env.JWT_PASS);
 
@@ -84,12 +70,12 @@ class UserController{
                     token: token,
                     message: "Successfully logged in",
             })
-        }catch(error){
-            return res.status(500).json({
-                error: "Something wrong happened, try again",
-                message: error,
-            });
-        }
+        // }catch(error){
+        //     return res.status(500).json({
+        //         error: "Something wrong happened, try again",
+        //         message: error,
+        //     });
+        // }
     }
 
     async getProfile(req: Request, res: Response){

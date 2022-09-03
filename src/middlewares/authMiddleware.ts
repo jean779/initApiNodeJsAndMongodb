@@ -12,7 +12,7 @@ export const authMiddleware = async (
     next: NextFunction
 ) => {
     const { authorization } = req.headers;
-    try{
+
         if(!authorization){
         return  res.status(401).json({
                 error: "Unauthorized",
@@ -40,10 +40,5 @@ export const authMiddleware = async (
         req.user = {_id, email, name};
 
         next();
-    }catch (error){
-        return res.status(500).json({
-            error: "Something wrong happened, try again",
-            message: error,
-        });
-    }
+    
 }
