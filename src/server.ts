@@ -6,7 +6,7 @@ import routes from './routes';
 require('dotenv').config()
 
 const app = express();
-mongoose.connect('mongodb://localhost/apiuser')
+mongoose.connect(process.env.MONGODB_CONECTION as string);
 
 app.use(express.json());
 

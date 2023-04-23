@@ -20,7 +20,12 @@ const User = new mongoose.Schema({
     createdAt:{
         type: Date,
         default: Date.now
-    }
+    },
+    updateAt:{
+        type: Date,
+        default: Date.now
+    }, 
+    isActive: { type: Boolean, default: true }
 });
 
 User.pre('save', async function(next) {

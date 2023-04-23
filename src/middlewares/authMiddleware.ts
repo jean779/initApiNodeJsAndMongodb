@@ -1,6 +1,6 @@
 import { NextFunction,  Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User from "../database/schemas/User";
+import User from "../models/User";
 
 type JwtPaylooad ={
     id: number
@@ -24,7 +24,7 @@ export const authMiddleware = async (
         console.log(token);
 
         const { id } = jwt.verify(token, process.env.JWT_PASS ?? '') as JwtPaylooad;
-
+        console.log("chegou ate aqui")
         const user = await User.findById(id);
 
         console.log(id);

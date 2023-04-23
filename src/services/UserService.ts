@@ -1,4 +1,4 @@
-import User from "../database/schemas/User";
+import User from "../models/User";
 import { Request, Response } from "express";
 import { ApiError, BadRequestError } from "../helpers/api-errors";
 
@@ -6,8 +6,11 @@ class UserService {
 
 
     getAllUsers = async () =>{
-        const users = User.find();
-        return users;
+        return User.find();
+    }
+
+    getAllUserActive = async() => {
+        return User.find({isActive: true })
     }
 
     userCreate = async (name: any, email: any, password: any) =>{        
@@ -19,6 +22,15 @@ class UserService {
 
         return user;
     }
+
+    userUpdate = async(userId : any, email:any )=>{
+        return await User.findByIdAndUpdate(userId, {email: email});
+    }
+
+    userDelte = async(userId : any)=>{
+        return await User.findByIdAndRemove(userId);
+    }
+    
 }
 
 export default new UserService;
