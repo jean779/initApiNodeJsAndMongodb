@@ -16,6 +16,10 @@ class CompanyService{
     return await Company.create(company);
   }
 
+  getCompanysByResponsible= async (userId: any) =>{
+    return Company.find({responsible: userId});
+  }
+
 }
 
 export default new CompanyService;

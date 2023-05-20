@@ -24,6 +24,11 @@ class CompanyController{
     return res.json(await CompanyService.getAllCompanys());
   }
 
+  async findByReponsible(req: Request, res: Response){
+    const userId = req.params.id;
+    return res.json(await CompanyService.getCompanysByResponsible(userId));
+  }
+
 }
   
 export default new CompanyController;

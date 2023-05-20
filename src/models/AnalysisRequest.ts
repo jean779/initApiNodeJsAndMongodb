@@ -1,12 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 
 const AnalysisRequest = new mongoose.Schema({
+  identification: { 
+    type: String,
+  },  
   companyId:{
-      type: String,
-      required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
+    required: true,
   },
   userId:{
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
   samplingDate:{

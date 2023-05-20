@@ -25,7 +25,9 @@ const User = new mongoose.Schema({
         type: Date,
         default: Date.now
     }, 
-    isActive: { type: Boolean, default: true }
+    companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
+    isActive: { type: Boolean, default: true },
+    role: { type: mongoose.Schema.Types.ObjectId, ref: "Role" },
 });
 
 User.pre('save', async function(next) {

@@ -25,9 +25,16 @@ export const authMiddleware = async (
 
         const { id } = jwt.verify(token, process.env.JWT_PASS ?? '') as JwtPaylooad;
         console.log("chegou ate aqui")
-        const user = await User.findById(id);
+        const user =  await User.findById(id)
+        .populate({
+            path: 'role',
+            populate: {
+                path: 'permissionIds',
+                select: 'name -_id'
+            }
+        })
+        .select('-password');
 
-        console.log(id);
         if(!user){
             return  res.status(401).json({
                 error: "Unauthorized",
@@ -35,9 +42,15 @@ export const authMiddleware = async (
             })
         }
         
-        const {email, name, _id} = user;
+        const {email, name, _id, role} = user;
 
-        req.user = {_id, email, name};
+            // Adiciona as informações do usuário e suas permissões ao req.user
+        req.user = {
+            _id,
+            email,
+            name,
+            role: role,
+        };
 
         next();
     

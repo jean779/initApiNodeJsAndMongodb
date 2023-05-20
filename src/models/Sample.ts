@@ -26,4 +26,5 @@ const Sample = new mongoose.Schema({
 });
 
 
+
 export default mongoose.model("Sample", Sample);
